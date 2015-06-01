@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>jQuery插件编写入门【译】 | Sliwey&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="baidu-site-verification" content="0H6HXuadSf" />
+  <meta name="description" content="先贴上原文地址：How to Create a Basic Plugin英文好的就去看原文吧，我这英语四级的渣渣水平，如有译的不好的地方，请各位看官多多包涵，欢迎批评指正。下面是正文，各位将就着看吧^_^
+
+有时候，你想用代码实现一个能够使用的功能。举个栗子，可能你想要一个单一的方法去调用一个jQuery选择器并且对其进行一系列的操作。也可能你写了一个非常有用的工具函数，然后你想把它方便地移植到其">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jQuery插件编写入门【译】">
+<meta property="og:url" content="http://qianliwei.com/2014/08/09/jQuery-plugin-beginning/index.html">
+<meta property="og:site_name" content="Sliwey's Blog">
+<meta property="og:description" content="先贴上原文地址：How to Create a Basic Plugin英文好的就去看原文吧，我这英语四级的渣渣水平，如有译的不好的地方，请各位看官多多包涵，欢迎批评指正。下面是正文，各位将就着看吧^_^
+
+有时候，你想用代码实现一个能够使用的功能。举个栗子，可能你想要一个单一的方法去调用一个jQuery选择器并且对其进行一系列的操作。也可能你写了一个非常有用的工具函数，然后你想把它方便地移植到其">
+<meta property="og:updated_time" content="2015-05-29T14:02:54.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="jQuery插件编写入门【译】">
+<meta name="twitter:description" content="先贴上原文地址：How to Create a Basic Plugin英文好的就去看原文吧，我这英语四级的渣渣水平，如有译的不好的地方，请各位看官多多包涵，欢迎批评指正。下面是正文，各位将就着看吧^_^
+
+有时候，你想用代码实现一个能够使用的功能。举个栗子，可能你想要一个单一的方法去调用一个jQuery选择器并且对其进行一系列的操作。也可能你写了一个非常有用的工具函数，然后你想把它方便地移植到其">
+  
+    <link rel="alternative" href="/atom.xml" title="Sliwey&#39;s Blog" type="application/atom+xml">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?60890e3679ad43eb34547e619a8273af";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</head>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-title" class="left">
+            <h1 id="logo-wrap">
+                <a href="/" id="logo" title="Sliwey&#39;s Blog">Sliwey&#39;s Blog</a>
+            </h1>
+            
+                <h2 id="subtitle-wrap">
+                    <a href="/" id="subtitle" title="Sliwey&#39;s Blog">积跬步以至千里，积小流以成江海</a>
+                </h2>
+            
+        </div>
+    </div>
+</header>
+        <div class="outer">
+            <section id="main">
+<!-- 文章页 -->
+  <article id="post-jQuery-plugin-beginning" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+    
+      <header class="article-header">
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先贴上原文地址：<a href="http://learn.jquery.com/plugins/basic-plugin-creation/" target="_blank" rel="external">How to Create a Basic Plugin</a><br>英文好的就去看原文吧，我这英语四级的渣渣水平，如有译的不好的地方，请各位看官多多包涵，欢迎批评指正。<br>下面是正文，各位将就着看吧^_^</p>
+<hr>
+<p>有时候，你想用代码实现一个能够使用的功能。举个栗子，可能你想要一个单一的方法去调用一个jQuery选择器并且对其进行一系列的操作。也可能你写了一个非常有用的工具函数，然后你想把它方便地移植到其他项目当中。当你遇到这些情况时，是时候写个插件了，骚年！</p>
+<h2 id="jQuery是怎样工作的：jQuery对象方法和工具方法">jQuery是怎样工作的：jQuery对象方法和工具方法</h2><p>在我们开始写自己的插件之前，我们必须先简单了解一下jQuery是怎样工作的。看下面这段代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$( <span class="string">"a"</span> ).css( <span class="string">"color"</span>, <span class="string">"red"</span> );</span><br></pre></td></tr></table></figure>
+<p>这是段基础的jQuery代码，但是你知道在这背后发生了什么吗？无论什么时候你用<code>$</code>函数选择元素，都会返回一个jQuery对象。这个对象包含了所有你用过的方法（<code>.css()</code>,<code>.click()</code>等等）和所有匹配你选择器的元素。jQuery对象从<code>$.fn</code>对象中获得这些方法，这个对象（译注：指<code>$.fn</code>对象）包含了所有jQuery的对象方法，所以如果我们要写自己的方法，也要包含这些方法。</p>
+<p>此外jQuery的工具方法<code>$.trim()</code>用来删除用户输入的字符串中所有的前导和后置空格。工具方法是直接依附在<code>$</code>函数本身上的方法。当你要对你获取到的DOM元素集进行一些在jQuery的API中没有提供的操作时，你可能想要去写一个工具方法插件。</p>
+<p><em>感觉翻的有点乱，自己概括下：<strong>jQuery对象方法就是挂在<code>$.fn</code>上的方法，可通过<code>$(&quot;#id&quot;).yourmethod();</code>这种形式调用；工具方法就是挂在<code>$</code>上的方法，通过<code>$.yourmethod();</code>这种形式调用</strong>。</em></p>
+<h2 id="基础插件编写">基础插件编写</h2><p>接下来我们要编写一个能使选取到的元素的文本颜色变为绿色的插件。我们要做的就是添加一个<code>greenify</code>函数到<code>$.fn</code>上，这样就能像其它的jQuery对象方法一样使用了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$.fn.greenify = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.css( <span class="string">"color"</span>, <span class="string">"green"</span> );</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">$( <span class="string">"a"</span> ).greenify(); <span class="comment">// Makes all the links green.</span></span><br></pre></td></tr></table></figure>
+<p>注意使用<code>.css()</code>，另一个方法，我们使用<code>this</code>,而不是<code>$( this )</code>。这是因为我们的<code>greenify</code>方法与<code>.css()</code>是同一个对象的方法。</p>
+<h2 id="链式">链式</h2><p>现在，我们编写的插件已经能够正常工作了，但是如果想要让它在现实世界中存活下来的话，还得做点什么。jQuery有一个特性是<strong>链式</strong>，你可以对一个选择器链接上五六个操作（译注：即<code>$(&quot;#id&quot;).css(&quot;color&quot;,&quot;blue&quot;).show();</code>这种操作）。这个特性是通过让所有的jQuery对象方法返回原始的jQuery对象来完成的(但是有一些例外，如：<code>.width()</code>无参调用时，返回的是选中元素的宽度，这时是不可链式的)。要使我们的插件方法能够被链式调用需要一行代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$.fn.greenify = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.css( <span class="string">"color"</span>, <span class="string">"green"</span> );</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$( <span class="string">"a"</span> ).greenify().addClass( <span class="string">"greenified"</span> );</span><br></pre></td></tr></table></figure>
+<p>需要注意的是链式的概念<em>并不适用于</em>jQuery的工具方法，比如：<code>.trim()</code>。</p>
+<p><strong><em>链式是挺重要的一点，它可以让我们写的插件更好的融入到jQuery本身所提供的方法或者其它插件方法之中。</em></strong></p>
+<h2 id="保护$别名和添加作用域">保护$别名和添加作用域</h2><p><code>$</code>变量在JavaScript库中非常常用，所以如果你在使用jQuery的同时还使用别的库，你就会通过<code>jQuery.noConflict()</code>来使jQuery不使用<code>$</code>（译注：即释放jQuery对<code>$</code>变量的控制，能使其它使用<code>$</code>变量的库正常工作）。然而，这会破坏我们的插件，因为我们是基于<code>$</code>是jQuery的别名这一假设上进行编写的。为了使我们的插件能够与其它插件一起使用，并且仍然用<code>$</code>来做jQuery的别名，我们需要把代码放到一个<a href="http://stage.learn.jquery.com/javascript-101/functions/#immediately-invoked-function-expression-iife" target="_blank" rel="external">立即调用的函数表达式</a>中，然后传递<code>jQuery</code>，并把参数定义为<code>$</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params"> $ </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    $.fn.greenify = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.css( <span class="string">"color"</span>, <span class="string">"green"</span> );</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    $.ltrim = <span class="function"><span class="keyword">function</span>(<span class="params"> str </span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> str.replace( <span class="regexp">/^\s+/</span>, <span class="string">""</span> );</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    $.rtrim = <span class="function"><span class="keyword">function</span>(<span class="params"> str </span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> str.replace( <span class="regexp">/\s+$/</span>, <span class="string">""</span> );</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;( jQuery ));</span><br></pre></td></tr></table></figure>
+<p>此外，立即调用函数的主要目的是允许我们拥有自己的私有变量。假设我们想要一个不同的绿色，并且我们想要把它存在一个变量中。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params"> $ </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> shade = <span class="string">"#556b2f"</span>;</span><br><span class="line"></span><br><span class="line">    $.fn.greenify = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.css( <span class="string">"color"</span>, shade );</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;( jQuery ));</span><br></pre></td></tr></table></figure>
+<h2 id="最小化插件的足迹">最小化插件的足迹</h2><p>在写插件时只占用<code>$.fn</code>的一个接口（译注：原文为<strong>slot</strong>,意为「插槽」，但是感觉翻译成「接口」更符合平时的习惯，后面就用统一使用「接口」）是一个很好的实践。这会减少你的插件被重写的可能，以及你的插件覆盖别的插件的可能。换句话说，这样是不好的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"> $ </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    $.fn.openPopup = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// Open popup code.</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    $.fn.closePopup = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// Close popup code.</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;( jQuery ));</span><br></pre></td></tr></table></figure>
+<p>使用一个接口，用参数来控制接口的具体实现会好很多。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"> $ </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    $.fn.popup = <span class="function"><span class="keyword">function</span>(<span class="params"> action </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ( action === <span class="string">"open"</span>) &#123;</span><br><span class="line">            <span class="comment">// Open popup code.</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ( action === <span class="string">"close"</span> ) &#123;</span><br><span class="line">            <span class="comment">// Close popup code.</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;( jQuery ));</span><br></pre></td></tr></table></figure>
+<h2 id="使用each()方法">使用<code>each()</code>方法</h2><p>典型的jQuery对象将包含任意数量的DOM元素的引用，这就是为什么jQuery对象经常被称为集合的原因。如果你想要对特定的元素做任何操作（比如获取一个data属性，计算具体的位置）那么你需要用<code>.use()</code>来遍历元素。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$.fn.myNewPlugin = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// Do something to each element here.</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>注意，这里我们返回<code>.each()</code>的结果而不是返回<code>this</code>。因为<code>.each()</code>已经是可链式的，它会返回<code>this</code>。到目前为止，这是一个比我们做过的更好的维护可链式的方式。</p>
+<h2 id="接受选项">接受选项</h2><p>随着你的插件变得越来越复杂，使你的插件可通过接受选项来自定义是一个好主意。做这个最简单的方法，特别是有很多的选项，是用对象字面量。让我们改变我们的<em>greenify</em>插件，使其接受一些选项。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params"> $ </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    $.fn.greenify = <span class="function"><span class="keyword">function</span>(<span class="params"> options </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这是拥有默认选项最简单的方法。</span></span><br><span class="line">        <span class="keyword">var</span> settings = $.extend(&#123;</span><br><span class="line">            <span class="comment">// 这些是默认选项。</span></span><br><span class="line">            color: <span class="string">"#556b2f"</span>,</span><br><span class="line">            backgroundColor: <span class="string">"white"</span></span><br><span class="line">        &#125;, options );</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 基于settings变量来进行设置</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.css(&#123;</span><br><span class="line">            color: settings.color,</span><br><span class="line">            backgroundColor: settings.backgroundColor</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;( jQuery ));</span><br></pre></td></tr></table></figure>
+<p>用法示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$( <span class="string">"div"</span> ).greenify(&#123;</span><br><span class="line">    color: <span class="string">"orange"</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><code>color</code>的默认值<code>#556b2f</code>通过<code>$.extend()</code>被覆盖成橙色。</p>
+<h2 id="放在一起">放在一起</h2><p>这是一个使用我们已经讨论过的技术完成的小插件的示例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"> $ </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    $.fn.showLinkLocation = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.filter( <span class="string">"a"</span> ).each(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">var</span> link = $( <span class="keyword">this</span> );</span><br><span class="line">            link.append( <span class="string">" ("</span> + link.attr( <span class="string">"href"</span> ) + <span class="string">")"</span> );</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;( jQuery ));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用法示例:</span></span><br><span class="line">$( <span class="string">"a"</span> ).showLinkLocation();</span><br></pre></td></tr></table></figure>
+<p>这个方便的插件将所有在集合中的<code>a</code>标签的内容后边插入了写在括号中的<code>href</code>属性。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 调用插件之前: --&gt;</span><br><span class="line"><span class="xml"><span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"page.html"</span>&gt;</span>Foo<span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 调用插件之后: --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"page.html"</span>&gt;</span>Foo (page.html)<span class="tag">&lt;/<span class="title">a</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+<p>我们的插件可以优化：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"> $ </span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">    $.fn.showLinkLocation = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">this</span>.filter( <span class="string">"a"</span> ).append(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">" ("</span> + <span class="keyword">this</span>.href + <span class="string">")"</span>;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line"></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">&#125;( jQuery ));</span><br></pre></td></tr></table></figure>
+<p>我们使用<code>.append()</code>方法接受回调函数的能力，这个回调函数的返回值会决定追加什么到集合中的每个元素后面。另外我们也没有使用<code>.attr()</code>方法去获取<code>href</code>属性，因为本地的DOM API可以让我们用<code>href</code>轻松访问该属性。</p>
+<hr>
+<p>呼~~终于算是完成了，果然我这英语水平翻译起来还是有点困难啊，有些翻译出来不通顺的地方我都意译了。如果你在阅读中发现还有不通顺或难以理解的地方，欢迎指出^_^（请原谅我捉急的英语吧OTL）</p>
+<p>最后，再总结下：<br>jQuery有两种方法：<strong>对象方法</strong>和<strong>工具方法</strong>。对象方法就是挂在<code>$.fn</code>上的方法，可通过<code>$(&quot;#id&quot;).yourmethod();</code>这种形式调用；工具方法就是挂在<code>$</code>上的方法，通过<code>$.yourmethod();</code>这种形式调用。<strong>因为我们写的插件一般都会操作DOM元素，所以插件都会挂在<code>$.fn</code>上，即用第一种形式，使之成为jQuery的对象方法。</strong><br>注意点：</p>
+<ul>
+<li>插件方法应返回<code>this</code>，使之能够链式编写。</li>
+<li>对外提供的接口应尽量少，即减少挂在<code>$.fn</code>上的函数。</li>
+<li>要能接受选项，以提供自定义功能。</li>
+</ul>
+
+      
+    </div>
+  </article>
+  
+<nav id="article-nav">
+  
+    <a href="/2014/12/04/react-msgboard-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><!-- Prev --></strong>
+      <div class="article-nav-title" title="基于React+NodeJs+MongoDB的简易留言板(一)">基于React+NodeJs+MongoDB的简易留言板(一)</div>
+    </a>
+  
+  
+    <a href="/2014/08/07/Hello-World/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><!-- Next --></strong>
+      <div class="article-nav-title" title="Hello World">Hello World</div>
+    </a>
+  
+</nav>
+
+  
+    <section id="comments">
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    </section>
+  
+</section>
+        </div>
+        <footer id="footer">
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 sliwey<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+        <aside id="sidebar" class="sidebar">
+    <div id="sidebar-toggle">
+        <span class="sidebar-toggle-line line-top"></span>
+        <span class="sidebar-toggle-line line-middle"></span>
+        <span class="sidebar-toggle-line line-bottom"></span>
+    </div>
+    <div class="sidebar-info">
+        <a href="/" class="info-photo" title="sliwey">
+            <img src="/images/tx.jpg" alt="sliwey">
+        </a>
+        <p class="info-name">sliwey</p>
+        <p class="info-intro">走在前端的路上，会那么一点点</p>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://qianliwei.com"></form>
+    </div>
+    <nav class="sidebar-nav">
+        
+            <a class="sidebar-nav-link" href="/" title="首页">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+            <a class="sidebar-nav-link" href="/archives" title="存档">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+            <a class="sidebar-nav-link" href="/lab" title="作品">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+    </nav>
+    <ul class="contact">
+        <li class="contact-link">
+            <a href="https://github.com/sliwey" class="contact-icon contact-github" title="github"></a></li>
+        <li class="contact-link">
+            <a href="http://weibo.com/u/1931780721" class="contact-icon contact-weibo" title="weibo"></a></li>
+        <li class="contact-link">
+            <a href="/atom.xml" class="contact-icon contact-rss" title="rss"></a></li>
+    </ul>
+    
+</aside>
+        <div id="backToTop"><x></x></div>
+    </div>
+    <script src="/js/jquery.js" type="text/javascript"></script>
+<script src="/js/script.js" type="text/javascript"></script>
+
+
+<script>
+    var disqus_shortname = 'sliweygithubcom';
+    
+    var disqus_url = 'http://qianliwei.com/2014/08/09/jQuery-plugin-beginning/';
+    
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//go.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+
+</body>
+</html>

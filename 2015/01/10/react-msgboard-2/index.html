@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>基于React+NodeJs+MongoDB的简易留言板(二) | Sliwey&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="baidu-site-verification" content="0H6HXuadSf" />
+  <meta name="description" content="上一篇我们已经用NodeJs实现了一个简易的应用服务器，可以访问静态资源以及处理GET和POST请求了。那么接下来就是对接收到的数据进行持久化了，也就是说得找个数据库存下接收到的数据，以便之后的读取。我选择了MongoDB，至于为什么，就是因为之前没用过想试试看嘛:)
+MongoDB的安装和配置本来不想写这一节的，因为网上有很多相关资料，但是写这篇文章前发现自己电脑上没装过MongoDB，下载完后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于React+NodeJs+MongoDB的简易留言板(二)">
+<meta property="og:url" content="http://qianliwei.com/2015/01/10/react-msgboard-2/index.html">
+<meta property="og:site_name" content="Sliwey's Blog">
+<meta property="og:description" content="上一篇我们已经用NodeJs实现了一个简易的应用服务器，可以访问静态资源以及处理GET和POST请求了。那么接下来就是对接收到的数据进行持久化了，也就是说得找个数据库存下接收到的数据，以便之后的读取。我选择了MongoDB，至于为什么，就是因为之前没用过想试试看嘛:)
+MongoDB的安装和配置本来不想写这一节的，因为网上有很多相关资料，但是写这篇文章前发现自己电脑上没装过MongoDB，下载完后">
+<meta property="og:image" content="http://qianliwei.com/images/2015011001.jpg">
+<meta property="og:image" content="http://qianliwei.com/images/2015011002.jpg">
+<meta property="og:image" content="http://qianliwei.com/images/2015011003.jpg">
+<meta property="og:updated_time" content="2015-05-25T13:05:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于React+NodeJs+MongoDB的简易留言板(二)">
+<meta name="twitter:description" content="上一篇我们已经用NodeJs实现了一个简易的应用服务器，可以访问静态资源以及处理GET和POST请求了。那么接下来就是对接收到的数据进行持久化了，也就是说得找个数据库存下接收到的数据，以便之后的读取。我选择了MongoDB，至于为什么，就是因为之前没用过想试试看嘛:)
+MongoDB的安装和配置本来不想写这一节的，因为网上有很多相关资料，但是写这篇文章前发现自己电脑上没装过MongoDB，下载完后">
+  
+    <link rel="alternative" href="/atom.xml" title="Sliwey&#39;s Blog" type="application/atom+xml">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?60890e3679ad43eb34547e619a8273af";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</head>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-title" class="left">
+            <h1 id="logo-wrap">
+                <a href="/" id="logo" title="Sliwey&#39;s Blog">Sliwey&#39;s Blog</a>
+            </h1>
+            
+                <h2 id="subtitle-wrap">
+                    <a href="/" id="subtitle" title="Sliwey&#39;s Blog">积跬步以至千里，积小流以成江海</a>
+                </h2>
+            
+        </div>
+    </div>
+</header>
+        <div class="outer">
+            <section id="main">
+<!-- 文章页 -->
+  <article id="post-react-msgboard-2" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+    
+      <header class="article-header">
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>上一篇我们已经用NodeJs实现了一个简易的应用服务器，可以访问静态资源以及处理GET和POST请求了。那么接下来就是对接收到的数据进行持久化了，也就是说得找个数据库存下接收到的数据，以便之后的读取。我选择了MongoDB，至于为什么，就是因为之前没用过想试试看嘛:)</p>
+<h2 id="MongoDB的安装和配置">MongoDB的安装和配置</h2><p>本来不想写这一节的，因为网上有很多相关资料，但是写这篇文章前发现自己电脑上没装过MongoDB，下载完后又忘了怎么配置，又得去网上翻，索性还是搬运过来好了，下次找起来也方便点。以下的安装和配置都是Windows平台的，Mac高富帅们只能自己去网上找找Mac版的了:)</p>
+<p>下载不必多说，去<a href="http://www.mongodb.org/downloads" target="_blank" rel="external">MongoDB官网</a>下载对应版本即可。安装完后，开始配置MongoDB服务。</p>
+<p>假设安装路径为<code>D:\MongoDB</code>，首先在<code>D:\MongoDB</code>下新建个<code>data</code>文件夹，再在<code>data</code>文件夹下新建一个<code>db</code>文件夹，用来存放相应的数据库数据。</p>
+<p>打开CMD，<code>cd</code>到<code>D:\MongoDB\bin</code>，输入<code>mongod.exe --dbpath=d:\MongoDB\data\db</code>来启动服务，如果提示需要<code>--rest</code>启动，那么就加上<code>rest</code>参数：<code>mongod.exe --rest --dbpath=d:\MongoDB\data\db</code>。<br><em>ps:我之前在公司进行到这一步的时候需要带rest参数，这次在家里试没带rest参数也成功了。</em></p>
+<p>接下来将MongoDB服务设置成Windows服务，并加上日志。先在<code>data</code>文件夹下新建<code>log</code>文件夹，在<code>log</code>文件夹中新建<code>log.log</code>文件。在CMD中输入<code>mongod --dbpath=d:\MongoDB\data\db --logpath=d:\MongoDB\data\log\log.log --install</code>。</p>
+<p>新开一个CMD，<code>cd</code>到<code>D:\MongoDB\bin\</code>,输入<code>mongo</code>进行连接测试，成功后就都搞定了。</p>
+<p>最后还需要一款MongoDB的图形化管理工具，MongoDB官方推荐了几款(<em>ps:官方推荐的那个链接找不到了，找到了再补上。</em>)，从中选款喜欢的就行。入前端之前，我也算是个半吊子的Java程序猿，所以我就选了用Java写的<a href="http://edgytech.com/umongo/" target="_blank" rel="external">UMongo</a>，就是这么任性:)这款工具使用起来还是很简单的，下载完解压运行连接，一切搞定。</p>
+<h2 id="用NodeJs操作MongoDB">用NodeJs操作MongoDB</h2><p>首先用npm安装MongoDB的NodeJs驱动：<br><code>npm install mongodb --save</code></p>
+<p>在上一篇文章的基础上，新建<code>db.js</code>：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//db.js</span></span><br><span class="line"><span class="keyword">var</span> MongoClient = <span class="built_in">require</span>(<span class="string">'mongodb'</span>).MongoClient;</span><br><span class="line"><span class="keyword">var</span> url = <span class="string">"mongodb://localhost:27017/msgBoard"</span>;</span><br><span class="line"><span class="keyword">var</span> documentName = <span class="string">"msg"</span>;</span><br><span class="line">   </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">save</span>(<span class="params">data, callback</span>) </span>&#123;</span><br><span class="line">    MongoClient.connect(url, <span class="function"><span class="keyword">function</span>(<span class="params">err, db</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (err) &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(err);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">var</span> collection = db.collection(documentName);</span><br><span class="line"></span><br><span class="line">            collection.insert(data, <span class="function"><span class="keyword">function</span>(<span class="params">err, result</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                    <span class="built_in">console</span>.log(err);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="built_in">console</span>.log(<span class="string">"insert success!!"</span>);</span><br><span class="line">                    callback &amp;&amp; callback(result);</span><br><span class="line">                    db.close();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line">exports.save = save;</span><br></pre></td></tr></table></figure></p>
+<p>首先我们对外<code>exports</code>出<code>save</code>方法，<code>save</code>方法接收两个参数：<code>data</code>和<code>callback</code>，<code>data</code>是要插入数据库的数据，<code>callback</code>就是插入操作完成后的回调函数。</p>
+<p>接下来看怎么把数据插入到数据库中，我们用了<code>MongoClient.connect()</code>这个方法来建立起与数据库之间的连接，url中的<code>mongodb://localhost:27017/</code>为MongoDB服务器的地址，<code>27017</code>是默认端口，<code>msgBoard</code>可以看作是关系型数据库中的数据库名，而<code>msg</code>可以当作关系型数据库中的表。连接建立完成后，就可以通过<code>collection.insert()</code>来进行插入操作。</p>
+<p>最后我们把<code>requestHandlers.js</code>中的<code>save</code>方法做些改变，让其能够把接收到的数据存入数据库：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//requestHandlers.js</span></span><br><span class="line"><span class="keyword">var</span> querystring = <span class="built_in">require</span>(<span class="string">"querystring"</span>);</span><br><span class="line">   </span><br><span class="line"><span class="comment">//...</span></span><br><span class="line">   </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">save</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> str = <span class="string">''</span>;</span><br><span class="line">    </span><br><span class="line">    request.on(<span class="string">"data"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">        str += <span class="built_in">decodeURIComponent</span>(chunk);</span><br><span class="line">    &#125;);</span><br><span class="line">   </span><br><span class="line">    request.on(<span class="string">"end"</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> param = querystring.parse(str);</span><br><span class="line">   </span><br><span class="line">        db.save(param, <span class="function"><span class="keyword">function</span>(<span class="params">result</span>) </span>&#123;</span><br><span class="line">            response.writeHead(<span class="number">200</span>, &#123;<span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>&#125;);</span><br><span class="line">            response.write(util.format(<span class="string">'%j'</span>, result));</span><br><span class="line">            response.end();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line">   </span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"><span class="comment">//</span></span><br></pre></td></tr></table></figure></p>
+<p>OK，启动应用，访问<code>http://localhost:8888/index.html</code>：</p>
+<p><img src="/images/2015011001.jpg" alt=""></p>
+<p>点击“提交”</p>
+<p><img src="/images/2015011002.jpg" alt=""></p>
+<p>这个返回的就是我们提交的数据在MongoDB中保存的格式，<code>_id</code>是MongoDB用以区分数据的唯一编码。那么，数据是不是真的已经存进数据库了呢？用UMongo查看下：</p>
+<p><img src="/images/2015011003.jpg" alt=""></p>
+<p>这条就是我新添加的数据，好了，一切正常，搞定！</p>
+<h2 id="结束语">结束语</h2><p>关于NodeJs对MongoDB的操作，我就介绍到这了，因为此次项目要用到的API都比较简单，更多信息可以查看<a href="http://mongodb.github.io/node-mongodb-native/2.0/api-docs/" target="_blank" rel="external">官方文档</a>。</p>
+<p>感觉自己写的比较乱，各位将就着看下吧:)</p>
+<p><strong>参考资料：</strong><br><a href="http://www.cnblogs.com/whoamme/p/3461088.html" target="_blank" rel="external">Win7下安装MongoDB——博客园-WhoAmMe</a><br><a href="http://docs.mongodb.org/manual/tutorial/install-mongodb-on-windows/" target="_blank" rel="external">Install MongoDB on Windows</a></p>
+<blockquote>
+<p>本文为原创文章，如有不足之处欢迎批评指正。<br>欢迎转载，转载请注明源地址：<a href="http://qianliwei.com/2015/01/10/react-msgboard-2/">qianliwei.com/2015/01/10/react-msgboard-2/</a></p>
+</blockquote>
+
+      
+    </div>
+  </article>
+  
+<nav id="article-nav">
+  
+    <a href="/2015/03/01/react-msgboard-3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><!-- Prev --></strong>
+      <div class="article-nav-title" title="基于React+NodeJs+MongoDB的简易留言板(三)">基于React+NodeJs+MongoDB的简易留言板(三)</div>
+    </a>
+  
+  
+    <a href="/2014/12/04/react-msgboard-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><!-- Next --></strong>
+      <div class="article-nav-title" title="基于React+NodeJs+MongoDB的简易留言板(一)">基于React+NodeJs+MongoDB的简易留言板(一)</div>
+    </a>
+  
+</nav>
+
+  
+    <section id="comments">
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    </section>
+  
+</section>
+        </div>
+        <footer id="footer">
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 sliwey<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+        <aside id="sidebar" class="sidebar">
+    <div id="sidebar-toggle">
+        <span class="sidebar-toggle-line line-top"></span>
+        <span class="sidebar-toggle-line line-middle"></span>
+        <span class="sidebar-toggle-line line-bottom"></span>
+    </div>
+    <div class="sidebar-info">
+        <a href="/" class="info-photo" title="sliwey">
+            <img src="/images/tx.jpg" alt="sliwey">
+        </a>
+        <p class="info-name">sliwey</p>
+        <p class="info-intro">走在前端的路上，会那么一点点</p>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://qianliwei.com"></form>
+    </div>
+    <nav class="sidebar-nav">
+        
+            <a class="sidebar-nav-link" href="/" title="首页">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+            <a class="sidebar-nav-link" href="/archives" title="存档">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+            <a class="sidebar-nav-link" href="/lab" title="作品">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+    </nav>
+    <ul class="contact">
+        <li class="contact-link">
+            <a href="https://github.com/sliwey" class="contact-icon contact-github" title="github"></a></li>
+        <li class="contact-link">
+            <a href="http://weibo.com/u/1931780721" class="contact-icon contact-weibo" title="weibo"></a></li>
+        <li class="contact-link">
+            <a href="/atom.xml" class="contact-icon contact-rss" title="rss"></a></li>
+    </ul>
+    
+</aside>
+        <div id="backToTop"><x></x></div>
+    </div>
+    <script src="/js/jquery.js" type="text/javascript"></script>
+<script src="/js/script.js" type="text/javascript"></script>
+
+
+<script>
+    var disqus_shortname = 'sliweygithubcom';
+    
+    var disqus_url = 'http://qianliwei.com/2015/01/10/react-msgboard-2/';
+    
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//go.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+
+</body>
+</html>

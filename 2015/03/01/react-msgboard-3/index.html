@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>基于React+NodeJs+MongoDB的简易留言板(三) | Sliwey&#39;s Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="baidu-site-verification" content="0H6HXuadSf" />
+  <meta name="description" content="发现从去年年底那会开始，React被提到的次数越来越多了，相关的文章也看到很多，看来大神们的预测还是很准的，React在国内终于真的火了。相信大家都对React有了一定的了解，我也就不多做介绍了，简单来说React是个专注于UI层的库，毕竟官网也是这么介绍的嘛，主要的特点就是虚拟DOM(virtual DOM)和单项数据流(one-way data flow)，更多内容可以去看官网React。
+快">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于React+NodeJs+MongoDB的简易留言板(三)">
+<meta property="og:url" content="http://qianliwei.com/2015/03/01/react-msgboard-3/index.html">
+<meta property="og:site_name" content="Sliwey's Blog">
+<meta property="og:description" content="发现从去年年底那会开始，React被提到的次数越来越多了，相关的文章也看到很多，看来大神们的预测还是很准的，React在国内终于真的火了。相信大家都对React有了一定的了解，我也就不多做介绍了，简单来说React是个专注于UI层的库，毕竟官网也是这么介绍的嘛，主要的特点就是虚拟DOM(virtual DOM)和单项数据流(one-way data flow)，更多内容可以去看官网React。
+快">
+<meta property="og:image" content="http://qianliwei.com/images/2015030101.jpg">
+<meta property="og:image" content="http://qianliwei.com/images/2015030101.jpg">
+<meta property="og:updated_time" content="2015-05-25T13:05:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基于React+NodeJs+MongoDB的简易留言板(三)">
+<meta name="twitter:description" content="发现从去年年底那会开始，React被提到的次数越来越多了，相关的文章也看到很多，看来大神们的预测还是很准的，React在国内终于真的火了。相信大家都对React有了一定的了解，我也就不多做介绍了，简单来说React是个专注于UI层的库，毕竟官网也是这么介绍的嘛，主要的特点就是虚拟DOM(virtual DOM)和单项数据流(one-way data flow)，更多内容可以去看官网React。
+快">
+  
+    <link rel="alternative" href="/atom.xml" title="Sliwey&#39;s Blog" type="application/atom+xml">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?60890e3679ad43eb34547e619a8273af";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+</head>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div id="header-title" class="left">
+            <h1 id="logo-wrap">
+                <a href="/" id="logo" title="Sliwey&#39;s Blog">Sliwey&#39;s Blog</a>
+            </h1>
+            
+                <h2 id="subtitle-wrap">
+                    <a href="/" id="subtitle" title="Sliwey&#39;s Blog">积跬步以至千里，积小流以成江海</a>
+                </h2>
+            
+        </div>
+    </div>
+</header>
+        <div class="outer">
+            <section id="main">
+<!-- 文章页 -->
+  <article id="post-react-msgboard-3" class="article article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+    
+      <header class="article-header">
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>发现从去年年底那会开始，React被提到的次数越来越多了，相关的文章也看到很多，看来大神们的预测还是很准的，React在国内终于真的火了。相信大家都对React有了一定的了解，我也就不多做介绍了，简单来说React是个专注于UI层的库，毕竟官网也是这么介绍的嘛，主要的特点就是虚拟DOM(virtual DOM)和单项数据流(one-way data flow)，更多内容可以去看官网<a href="http://facebook.github.io/react/" target="_blank" rel="external">React</a>。</p>
+<h2 id="快速入门">快速入门</h2><p>先简单介绍下React的写法，秉着show me code的原则，先上代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="doctype">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">html</span> <span class="attribute">lang</span>=<span class="value">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">title</span>&gt;</span>Hello React<span class="tag">&lt;/<span class="title">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"lib/js/react.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"lib/js/JSXTransformer.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"container"</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">type</span>=<span class="value">"text/jsx"</span>&gt;</span><span class="openscad"></span><br><span class="line">        React.<span class="built_in">render</span><span class="params">(</span><br><span class="line">            &lt;p&gt;Hello React&lt;/p&gt;,</span><br><span class="line">            document.getElementById<span class="params">('container')</span></span><br><span class="line">        )</span>;</span><br><span class="line">    </span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>运行结果：</p>
+<p><img src="/images/2015030101.jpg" alt=""></p>
+<p>第一次看到这段代码肯定会觉得很奇怪，既不像JS也不像HTML，到底是什么写法？这就是所谓的<a href="http://facebook.github.io/react/docs/jsx-in-depth.html" target="_blank" rel="external">JSX</a>啦。那它是怎么跑起来的呢？且仔细看script标签的type属性，值为<code>text/jsx</code>，再看引入的脚本中有个叫<code>JSXTransformer.js</code>的，显而易见，这个js就是查找<code>type=&quot;text/jsx&quot;</code>的脚本把其中用JSX写的代码转换成符合JS语法的代码，也就是做了一个“翻译”的工作。</p>
+<p>那么问题来了，既然仅仅只是翻译，把这玩意儿搬到线上来做总是不太合适的，增加了连接数不说，单单翻译也是要时间的嘛(不要问我“单单”是谁)。这个必须不能忍啊，但是不用慌，Facebook那帮人早就替我们考虑到了，只要下载个工具就好了，当然需要有npm(不知道npm的前端不是好攻城狮)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">npm install react-tools -g</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">下载完后，输入命令： </span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">jsx --watch src/ build/</span><br></pre></td></tr></table></figure>
+<p>这样就会把<code>src</code>文件夹下的用了JSX语法的js文件哐当哐当翻译成JS语法js文件并保存在<code>build</code>文件夹下，并且实时监听。现在我们就可以把之前的那段代码改成这样：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="doctype">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">html</span> <span class="attribute">lang</span>=<span class="value">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">title</span>&gt;</span>Hello React<span class="tag">&lt;/<span class="title">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"lib/js/react.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"container"</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"build/js/helloreact.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>运行结果：</p>
+<p><img src="/images/2015030101.jpg" alt=""></p>
+<p>到这里可能有些人可能还会有一个疑问，那就是为什么要用JSX来写，我直接用JS写不行吗？答案是当然可以。但是(当然会有“但是”^_^)，在决定这么做之前，先比较下两种写法的区别：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//JSX</span></span><br><span class="line">React.render(</span><br><span class="line">    <span class="xml"><span class="tag">&lt;<span class="title">p</span>&gt;</span>Hello React<span class="tag">&lt;/<span class="title">p</span>&gt;</span>,</span><br><span class="line">    document.getElementById('container')</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">//JS</span><br><span class="line">React.render(</span><br><span class="line">    React.createElement("p", null, "Hello React"),</span><br><span class="line">    document.getElementById('container')</span><br><span class="line">);</span></span><br></pre></td></tr></table></figure>
+<p>JSX可以让你用更贴近HTML的方式来写代码，看起来会比较直观，而且代码量更少，相较之下我个人还是比较喜欢用JSX这种方式，特别是代码量大了以后这个优势会更加明显，再加上学习成本不高，掌握起来也是比较方便的。</p>
+<p>接下来就是本次项目的最后一步了，用React完成一个留言板。其实我是基于<a href="http://facebook.github.io/react/docs/tutorial.html" target="_blank" rel="external">官方教程</a>来写的，代码跟教程中给出的基本差不多，我只是把服务端也搭了下(怎么搭都写在前两篇文章里了)，让整个流程能够完整走完。这篇文章本来是想把官方教程翻译一下再加点自己的理解，因为那时国内相关资源比较少，但是拖到现在发现国内已经有很多相关资源了，这种入门教程我觉得就没什么太大意义了，所以就不继续写下去了（其实就是自己懒o(╯□╰)o），具体代码可以看<a href="https://github.com/sliwey/ReactMsgBoard" target="_blank" rel="external">这里</a>。</p>
+<h2 id="关于React">关于React</h2><p>最后说说我个人对React的一些想法吧，我是去年10月份那会儿参加<a href="http://www.imooc.com/learn/221" target="_blank" rel="external">D2</a>时听<a href="http://weibo.com/kejunz" target="_blank" rel="external">@张克军</a>的分享才对前端组件化有了比较深刻的理解（这里歪一下，D2还真是值得参加，虽然不一定听得懂大牛们分享的内容，但是至少能知道大牛们正在研究的方向，自己能作为借鉴参考，下次有机会再去长长见识），回来后才接触到React这个库，然后才慢慢的写了这个小项目，但是也没有很深入的研究过，只是知道点皮毛。后来工作中用到了Angular，就又去学Angular了，很多人都拿Angular和React来作比较（我个人认为这是不合理的，因为这两个根本就不是同一个层次的东西），网上也有很多这方面的文章，所以关于性能什么的比较我就不说了，就简单说说自己的使用感受吧。</p>
+<p>Angular毕竟是一个框架，框架就是一个大而全的东西，包罗万象，你只能按照框架所给出的规则来写代码，基本上无法突破一些限定，所以学习成本比较高，学习曲线也比较陡峭。好处就是一旦掌握之后，使用起来会很方便，开发会很迅速(此时学习曲线就会比较平缓，但是要想精通就又是一条陡峭的曲线，不过这一点所有东西都一样，要想精通都不容易，并不仅仅只是Angular)。缺点也比较明显，就是太“重”，想要在原来的基础上换用别的框架基本不可能，只能推翻重来。</p>
+<p>而React是一个库，只是负责UI，与其他环节耦合度不高，比较灵活，要是在此基础上做一次封装，暴露常用接口，如果封装的好，切换库基本上是无痛的。</p>
+<p>其实对于我来说，Angular和React给我感受最深的一点就是，Angular是在HTML里写JS，而React是在JS里写HTML，到底哪个好也没个定论，见仁见智吧。我自己是比较偏向于React的方式，在HTML中写JS就像以前在JSP中写JSTL一样，让HTML显得很臃肿，不是很喜欢。</p>
+<p>前不久Facebook又推出了React Native，这个真是被惊艳到了，不知道什么时候可以体验下，照这样发展下去JS是要一统江湖的节奏啊2333333…</p>
+<p>不知不觉扯了这么多，这次就先到这吧，以后还是要常督促自己，多写写博客，Fighting！</p>
+<blockquote>
+<p>本文为原创文章，如有不足之处欢迎批评指正。<br>欢迎转载，转载请注明源地址：<a href="http://qianliwei.com/2015/03/01/react-msgboard-3/">qianliwei.com/2015/03/01/react-msgboard-3/</a></p>
+</blockquote>
+
+      
+    </div>
+  </article>
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2015/01/10/react-msgboard-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><!-- Next --></strong>
+      <div class="article-nav-title" title="基于React+NodeJs+MongoDB的简易留言板(二)">基于React+NodeJs+MongoDB的简易留言板(二)</div>
+    </a>
+  
+</nav>
+
+  
+    <section id="comments">
+      <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+      </div>
+    </section>
+  
+</section>
+        </div>
+        <footer id="footer">
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 sliwey<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+        <aside id="sidebar" class="sidebar">
+    <div id="sidebar-toggle">
+        <span class="sidebar-toggle-line line-top"></span>
+        <span class="sidebar-toggle-line line-middle"></span>
+        <span class="sidebar-toggle-line line-bottom"></span>
+    </div>
+    <div class="sidebar-info">
+        <a href="/" class="info-photo" title="sliwey">
+            <img src="/images/tx.jpg" alt="sliwey">
+        </a>
+        <p class="info-name">sliwey</p>
+        <p class="info-intro">走在前端的路上，会那么一点点</p>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://qianliwei.com"></form>
+    </div>
+    <nav class="sidebar-nav">
+        
+            <a class="sidebar-nav-link" href="/" title="首页">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+            <a class="sidebar-nav-link" href="/archives" title="存档">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+            <a class="sidebar-nav-link" href="/lab" title="作品">
+                <span class="sidebar-nav-text"></span>
+            </a>
+        
+    </nav>
+    <ul class="contact">
+        <li class="contact-link">
+            <a href="https://github.com/sliwey" class="contact-icon contact-github" title="github"></a></li>
+        <li class="contact-link">
+            <a href="http://weibo.com/u/1931780721" class="contact-icon contact-weibo" title="weibo"></a></li>
+        <li class="contact-link">
+            <a href="/atom.xml" class="contact-icon contact-rss" title="rss"></a></li>
+    </ul>
+    
+</aside>
+        <div id="backToTop"><x></x></div>
+    </div>
+    <script src="/js/jquery.js" type="text/javascript"></script>
+<script src="/js/script.js" type="text/javascript"></script>
+
+
+<script>
+    var disqus_shortname = 'sliweygithubcom';
+    
+    var disqus_url = 'http://qianliwei.com/2015/03/01/react-msgboard-3/';
+    
+    (function(){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//go.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+
+</body>
+</html>
