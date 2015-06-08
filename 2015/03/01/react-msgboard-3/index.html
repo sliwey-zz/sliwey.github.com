@@ -16,7 +16,7 @@
 快">
 <meta property="og:image" content="http://qianliwei.com/images/2015030101.jpg">
 <meta property="og:image" content="http://qianliwei.com/images/2015030101.jpg">
-<meta property="og:updated_time" content="2015-05-25T13:05:14.000Z">
+<meta property="og:updated_time" content="2015-06-08T12:00:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于React+NodeJs+MongoDB的简易留言板(三)">
 <meta name="twitter:description" content="发现从去年年底那会开始，React被提到的次数越来越多了，相关的文章也看到很多，看来大神们的预测还是很准的，React在国内终于真的火了。相信大家都对React有了一定的了解，我也就不多做介绍了，简单来说React是个专注于UI层的库，毕竟官网也是这么介绍的嘛，主要的特点就是虚拟DOM(virtual DOM)和单项数据流(one-way data flow)，更多内容可以去看官网React。
@@ -61,6 +61,12 @@ var _hmt = _hmt || [];
     
       <header class="article-header">
         
+  
+    <h1 class="article-title" itemprop="name">
+      基于React+NodeJs+MongoDB的简易留言板(三)
+    </h1>
+  
+
       </header>
     
     <div class="article-entry" itemprop="articleBody">
@@ -72,7 +78,7 @@ var _hmt = _hmt || [];
 <p><img src="/images/2015030101.jpg" alt=""></p>
 <p>第一次看到这段代码肯定会觉得很奇怪，既不像JS也不像HTML，到底是什么写法？这就是所谓的<a href="http://facebook.github.io/react/docs/jsx-in-depth.html" target="_blank" rel="external">JSX</a>啦。那它是怎么跑起来的呢？且仔细看script标签的type属性，值为<code>text/jsx</code>，再看引入的脚本中有个叫<code>JSXTransformer.js</code>的，显而易见，这个js就是查找<code>type=&quot;text/jsx&quot;</code>的脚本把其中用JSX写的代码转换成符合JS语法的代码，也就是做了一个“翻译”的工作。</p>
 <p>那么问题来了，既然仅仅只是翻译，把这玩意儿搬到线上来做总是不太合适的，增加了连接数不说，单单翻译也是要时间的嘛(不要问我“单单”是谁)。这个必须不能忍啊，但是不用慌，Facebook那帮人早就替我们考虑到了，只要下载个工具就好了，当然需要有npm(不知道npm的前端不是好攻城狮)：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">npm install react-tools -g</span><br><span class="line">``` </span><br><span class="line"></span><br><span class="line">下载完后，输入命令： </span><br><span class="line"></span><br><span class="line">```bash</span><br><span class="line">jsx --watch src/ build/</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">npm install react-tools -g   </span><br><span class="line"></span><br><span class="line"><span class="comment">#下载完后，输入命令：</span></span><br><span class="line">jsx --watch src/ build/</span><br></pre></td></tr></table></figure>
 <p>这样就会把<code>src</code>文件夹下的用了JSX语法的js文件哐当哐当翻译成JS语法js文件并保存在<code>build</code>文件夹下，并且实时监听。现在我们就可以把之前的那段代码改成这样：</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="doctype">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">html</span> <span class="attribute">lang</span>=<span class="value">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">meta</span> <span class="attribute">charset</span>=<span class="value">"UTF-8"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">title</span>&gt;</span>Hello React<span class="tag">&lt;/<span class="title">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"lib/js/react.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">id</span>=<span class="value">"container"</span>&gt;</span><span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">script</span> <span class="attribute">src</span>=<span class="value">"build/js/helloreact.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="title">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>运行结果：</p>
